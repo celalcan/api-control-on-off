@@ -1,32 +1,24 @@
-import { createServer } from "http";
-import { fileURLToPath } from "url";
-import { dirname } from "path";
-import { Low, JSONFile } from "lowdb";
-import { default as JSONServer } from "json-server";
+const { createServer, Model } = require('json-server');
+const cors = require('cors');
+const path = require('path');
+const fs = require('fs');
 
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = dirname(__filename);
+// Veritabanı dosyasının yolu
+const dbFile = path.join(__dirname, 'db.json');
 
-// Veritabanını ayarla
-const file = new JSONFile(__dirname + "/db.json");
-const db = new Low(file);
-
-// İlk veritabanı içeriğini yükle
-await db.read();
-db.data ||= { status: 0 }; // Varsayılan değer 0
-await db.write();
+// Veritabanını oluştur ve oku
+const db = JSON.parse(fs.readFileSync(dbFile, 'utf8'));
 
 // JSON Server'ı kur
-const server = JSONServer.create();
-const router = JSONServer.router(db);
-const middlewares = JSONServer.defaults();
+const server = createServer();
+const router = createServer.router(db);
+const middlewares = createServer.defaults();
 
+server.use(cors());
 server.use(middlewares);
 server.use(router);
 
 const PORT = process.env.PORT || 3000;
-const httpServer = createServer(server);
-
-httpServer.listen(PORT, () => {
+server.listen(PORT, () => {
   console.log(`JSON Server ${PORT} portunda çalışıyor`);
 });
