@@ -1,31 +1,28 @@
-// See https://github.com/typicode/json-server#module
-const jsonServer = require('json-server')
+import jsonServer from 'json-server';
+import path from 'path';
+import fs from 'fs';
 
-const server = jsonServer.create()
+// JSON Server'ı oluşturun
+const server = jsonServer.create();
 
-// Uncomment to allow write operations
-// const fs = require('fs')
-// const path = require('path')
-// const filePath = path.join('db.json')
-// const data = fs.readFileSync(filePath, "utf-8");
-// const db = JSON.parse(data);
-// const router = jsonServer.router(db)
+// Dosya yolunu doğru ayarlayın
+const filePath = path.join(process.cwd(), 'db.json');
+const data = fs.readFileSync(filePath, 'utf-8');
+const db = JSON.parse(data);
+const router = jsonServer.router(db);
 
-// Comment out to allow write operations
-const router = jsonServer.router('db.json')
+const middlewares = jsonServer.defaults();
 
-const middlewares = jsonServer.defaults()
-
-server.use(middlewares)
-// Add this before server.use(router)
+server.use(middlewares);
 server.use(jsonServer.rewriter({
     '/api/*': '/$1',
     '/blog/:resource/:id/show': '/:resource/:id'
-}))
-server.use(router)
-server.listen(3000, () => {
-    console.log('JSON Server is running')
-})
+}));
+server.use(router);
 
-// Export the Server API
-module.exports = server
+server.listen(3000, () => {
+    console.log('JSON Server is running');
+});
+
+// Server API'yi dışa aktarın
+export default server;
