@@ -2,7 +2,7 @@ import axios from 'axios';
 
 function App() {
   const handleStatusChange = (newValue) => {
-    axios.patch('https://api-control-on-off.vercel.app/api/status', { status: { value: newValue } })
+    axios.patch('https://api-control-on-off.vercel.app/api/status', { value: newValue })
       .then(response => {
         console.log('Status updated:', response.data);
       })
