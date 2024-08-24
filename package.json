@@ -10,7 +10,8 @@
     "preview": "vite preview"
   },
   "dependencies": {
-    "axios": "^1.7.4",
+    "@progress/kendo-react-buttons": "^8.2.0",
+    "axios": "^1.7.5",
     "json-server": "^0.17.0",
     "react": "^18.3.1",
     "react-dom": "^18.3.1"

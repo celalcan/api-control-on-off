@@ -1,68 +1,60 @@
+import React, { useEffect, useState } from 'react';
 import axios from 'axios';
-import React, { useState, useEffect } from 'react';
+import { ToggleButton } from '@progress/kendo-react-buttons';
+import '@progress/kendo-theme-default/dist/all.css';
 
-function App() {
-  const [status, setStatus] = useState(null);
+// API URL'nizi buraya ekleyin
+const API_URL = 'https://api-control-on-off.vercel.app/api/status';
+
+const App = () => {
+  const [status, setStatus] = useState({
+    'led-one': 0,
+    'led-two': 0,
+    'led-three': 0,
+    'led-four': 0
+  });
 
   useEffect(() => {
-    // Komponent ilk yüklendiğinde mevcut LED durumlarını al
+    // Sayfa yüklendiğinde status'ü almak için veri çekme
+    const fetchStatus = async () => {
+      try {
+        const response = await axios.get(API_URL);
+        setStatus(response.data.status);
+      } catch (error) {
+        console.error('Status getirilirken bir hata oluştu:', error);
+      }
+    };
+
     fetchStatus();
   }, []);
 
-  const fetchStatus = async () => {
+  // Status güncelleme
+  const updateStatus = async (led) => {
+    const newStatus = { ...status, [led]: status[led] === 1 ? 0 : 1 };
     try {
-      const response = await axios.get('https://api-control-on-off.vercel.app/api');
-      // API'den gelen yanıtın status alanını state'e atayın
-      setStatus(response.data.status);
+      await axios.post(API_URL, { status: newStatus });
+      setStatus(newStatus);
     } catch (error) {
-      console.error('Error fetching LED status:', error);
+      console.error('Status güncellenirken bir hata oluştu:', error);
     }
   };
-
-  const updateStatus = async (led, newValue) => {
-    if (status === null) return; // Eğer status verisi alınmamışsa hiçbir işlem yapma
-
-    try {
-      // Güncellenmiş durumu oluştur
-      const updatedStatus = { ...status, [led]: newValue };
-
-      // Güncellenmiş durumu API'ye gönder
-      await axios.patch('https://api-control-on-off.vercel.app/api', {
-        status: updatedStatus
-      });
-
-      // State'i güncelle
-      setStatus(updatedStatus);
-      console.log(`Status of ${led} updated:`, updatedStatus);
-    } catch (error) {
-      console.error(`There was an error updating the ${led} status!`, error);
-    }
-  };
-
-  if (status === null) {
-    return <div>Loading...</div>;
-  }
 
   return (
     <div className="App">
-      <div>
-        <button onClick={() => updateStatus('led-one', 1)}>Turn LED One On</button>
-        <button onClick={() => updateStatus('led-one', 0)}>Turn LED One Off</button>
-      </div>
-      <div>
-        <button onClick={() => updateStatus('led-two', 1)}>Turn LED Two On</button>
-        <button onClick={() => updateStatus('led-two', 0)}>Turn LED Two Off</button>
-      </div>
-      <div>
-        <button onClick={() => updateStatus('led-three', 1)}>Turn LED Three On</button>
-        <button onClick={() => updateStatus('led-three', 0)}>Turn LED Three Off</button>
-      </div>
-      <div>
-        <button onClick={() => updateStatus('led-four', 1)}>Turn LED Four On</button>
-        <button onClick={() => updateStatus('led-four', 0)}>Turn LED Four Off</button>
-      </div>
+      <h1>LED Kontrolleri</h1>
+      {Object.keys(status).map((led) => (
+        <div key={led} style={{ marginBottom: '10px' }}>
+          <span>{led.replace('-', ' ')}</span>
+          <ToggleButton
+            toggled={status[led] === 1}
+            onChange={() => updateStatus(led)}
+          >
+            {status[led] === 1 ? 'Açık' : 'Kapalı'}
+          </ToggleButton>
+        </div>
+      ))}
     </div>
   );
-}
+};
 
 export default App;
