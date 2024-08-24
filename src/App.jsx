@@ -32,8 +32,8 @@ function App() {
   const updateStatus = async (led, newValue) => {
     try {
       // Mevcut durumu alın
-      const currentStatus = await axios.get('https://api-control-on-off.vercel.app/api/status');
-      const updatedStatus = currentStatus.data.status || {
+      const response = await axios.get('https://api-control-on-off.vercel.app/api/status');
+      const currentStatus = response.data.status || {
         "led-one": 1,
         "led-two": 1,
         "led-three": 1,
@@ -41,16 +41,16 @@ function App() {
       };
 
       // Sadece tıklanan LED'i güncelle
-      updatedStatus[led] = newValue;
+      currentStatus[led] = newValue;
 
       // Güncellenmiş durumu API'ye gönder
       await axios.patch('https://api-control-on-off.vercel.app/api/status', {
-        status: updatedStatus
+        status: currentStatus
       });
 
       // State'i güncelle
-      setLedStatus(updatedStatus);
-      console.log(`Status of ${led} updated:`, updatedStatus);
+      setLedStatus(currentStatus);
+      console.log(`Status of ${led} updated:`, currentStatus);
     } catch (error) {
       console.error(`There was an error updating the ${led} status!`, error);
     }
