@@ -2,12 +2,7 @@ import axios from 'axios';
 import React, { useState, useEffect } from 'react';
 
 function App() {
-  const [ledStatus, setLedStatus] = useState({
-    "led-one": 1,
-    "led-two": 1,
-    "led-three": 1,
-    "led-four": 1
-  });
+  const [ledStatus, setLedStatus] = useState({});
 
   useEffect(() => {
     // Komponent ilk yüklendiğinde mevcut LED durumlarını al
@@ -17,6 +12,7 @@ function App() {
   const fetchStatus = async () => {
     try {
       const response = await axios.get('https://api-control-on-off.vercel.app/api/status');
+      // API'den gelen yanıtın status alanını state'e atayın
       setLedStatus(response.data.status || {
         "led-one": 1,
         "led-two": 1,
@@ -30,7 +26,7 @@ function App() {
 
   const updateStatus = async (led, newValue) => {
     try {
-      // Sadece tıklanan LED'i güncellemek için mevcut durumu al
+      // Mevcut durumu alın
       const response = await axios.get('https://api-control-on-off.vercel.app/api/status');
       const currentStatus = response.data.status || {
         "led-one": 1,
