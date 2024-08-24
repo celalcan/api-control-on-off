@@ -11,7 +11,7 @@ function App() {
 
   const fetchStatus = async () => {
     try {
-      const response = await axios.get('https://api-control-on-off.vercel.app/api/status');
+      const response = await axios.get('https://api-control-on-off.vercel.app/api');
       // API'den gelen yanıtın status alanını state'e atayın
       setStatus(response.data.status);
     } catch (error) {
@@ -27,7 +27,7 @@ function App() {
       const updatedStatus = { ...status, [led]: newValue };
 
       // Güncellenmiş durumu API'ye gönder
-      await axios.patch('https://api-control-on-off.vercel.app/api/status', {
+      await axios.patch('https://api-control-on-off.vercel.app/api', {
         status: updatedStatus
       });
 
