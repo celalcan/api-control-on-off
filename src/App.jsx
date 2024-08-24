@@ -1,15 +1,45 @@
 import axios from 'axios';
-import React from 'react';
+import React, { useState } from 'react';
 
 function App() {
+  const [ledStatus, setLedStatus] = useState({
+    "led-one": 1,
+    "led-two": 1,
+    "led-three": 1,
+    "led-four": 1
+  });
+
+  const fetchStatus = async () => {
+    try {
+      const response = await axios.get('https://api-control-on-off.vercel.app/api/status');
+      setLedStatus(response.data.status || {
+        "led-one": 1,
+        "led-two": 1,
+        "led-three": 1,
+        "led-four": 1
+      });
+    } catch (error) {
+      console.error('Error fetching LED status:', error);
+    }
+  };
+
   const updateStatus = async (led, newValue) => {
     try {
-      const response = await axios.patch('https://api-control-on-off.vercel.app/api/status', {
-        status: {
-          [led]: newValue
-        }
+      // Fetch the current status
+      await fetchStatus();
+      
+      // Update the status for the specific LED
+      const updatedStatus = {
+        ...ledStatus,
+        [led]: newValue
+      };
+
+      await axios.patch('https://api-control-on-off.vercel.app/api/status', {
+        status: updatedStatus
       });
-      console.log(`Status of ${led} updated:`, response.data);
+      
+      setLedStatus(updatedStatus);
+      console.log(`Status of ${led} updated:`, updatedStatus);
     } catch (error) {
       console.error(`There was an error updating the ${led} status!`, error);
     }
