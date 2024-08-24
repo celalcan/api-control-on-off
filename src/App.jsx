@@ -1,56 +1,50 @@
-import React, { useEffect, useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import axios from 'axios';
-import { ToggleButton } from '@progress/kendo-react-buttons';
-import '@progress/kendo-theme-default/dist/all.css';
-
-// API URL'nizi buraya ekleyin
-const API_URL = 'https://api-control-on-off.vercel.app/api/status';
 
 const App = () => {
-  const [status, setStatus] = useState({
+  const [ledStatus, setLedStatus] = useState({
     'led-one': 0,
     'led-two': 0,
     'led-three': 0,
-    'led-four': 0
+    'led-four': 0,
   });
 
   useEffect(() => {
-    // Sayfa yüklendiğinde status'ü almak için veri çekme
-    const fetchStatus = async () => {
+    // LED durumlarını almak için bir GET isteği
+    const fetchData = async () => {
       try {
-        const response = await axios.get(API_URL);
-        setStatus(response.data.status);
+        const response = await axios.get('/api/led-status'); // Burada API endpoint'inizi kullanın
+        setLedStatus(response.data.status);
       } catch (error) {
-        console.error('Status getirilirken bir hata oluştu:', error);
+        console.error('Error fetching LED status:', error);
       }
     };
-
-    fetchStatus();
+    fetchData();
   }, []);
 
-  // Status güncelleme
-  const updateStatus = async (led) => {
-    const newStatus = { ...status, [led]: status[led] === 1 ? 0 : 1 };
+  const handleToggle = async (led) => {
+    const newStatus = ledStatus[led] === 1 ? 0 : 1;
+
     try {
-      await axios.post(API_URL, { status: newStatus });
-      setStatus(newStatus);
+      await axios.post('/api/update-led', { led, status: newStatus }); // Burada API endpoint'inizi kullanın
+      setLedStatus((prevStatus) => ({
+        ...prevStatus,
+        [led]: newStatus,
+      }));
     } catch (error) {
-      console.error('Status güncellenirken bir hata oluştu:', error);
+      console.error('Error updating LED status:', error);
     }
   };
 
   return (
-    <div className="App">
-      <h1>LED Kontrolleri</h1>
-      {Object.keys(status).map((led) => (
-        <div key={led} style={{ marginBottom: '10px' }}>
-          <span>{led.replace('-', ' ')}</span>
-          <ToggleButton
-            toggled={status[led] === 1}
-            onChange={() => updateStatus(led)}
-          >
-            {status[led] === 1 ? 'Açık' : 'Kapalı'}
-          </ToggleButton>
+    <div>
+      <h1>LED Controller</h1>
+      {Object.keys(ledStatus).map((led) => (
+        <div key={led}>
+          <span>{led.replace('led-', 'LED ').toUpperCase()}: {ledStatus[led] ? 'ON' : 'OFF'}</span>
+          <button onClick={() => handleToggle(led)}>
+            Turn {ledStatus[led] ? 'OFF' : 'ON'}
+          </button>
         </div>
       ))}
     </div>
