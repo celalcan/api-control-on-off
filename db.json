@@ -1,8 +1,8 @@
 {
   "status": {
     "led-one": 1,
-    "led-two" : 1,
-    "led-three" : 1,
-    "led-four" :1
+    "led-two": 1,
+    "led-three": 1,
+    "led-four": 1
   }
 }
