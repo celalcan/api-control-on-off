@@ -2,7 +2,7 @@ import axios from 'axios';
 import React, { useState, useEffect } from 'react';
 
 function App() {
-  const [status, setStatus] = useState({});
+  const [status, setStatus] = useState(null);
 
   useEffect(() => {
     // Komponent ilk yüklendiğinde mevcut LED durumlarını al
@@ -13,43 +13,35 @@ function App() {
     try {
       const response = await axios.get('https://api-control-on-off.vercel.app/api/status');
       // API'den gelen yanıtın status alanını state'e atayın
-      console.log(response);
-      setStatus(response.data.status || {
-        "led-one": 1,
-        "led-two": 1,
-        "led-three": 1,
-        "led-four": 1
-      });
+      setStatus(response.data.status);
     } catch (error) {
       console.error('Error fetching LED status:', error);
     }
   };
 
   const updateStatus = async (led, newValue) => {
-    try {
-      // Mevcut durumu alın
-      const response = await axios.get('https://api-control-on-off.vercel.app/api/status');
-      console.log(response);
-      const currentStatus = response.data.status || {
-        "led-one": 1,
-        "led-two": 1,
-        "led-three": 1,
-        "led-four": 1
-      };
+    if (status === null) return; // Eğer status verisi alınmamışsa hiçbir işlem yapma
 
-      // Sadece tıklanan LED'i güncelle
-      currentStatus[led] = newValue;
+    try {
+      // Güncellenmiş durumu oluştur
+      const updatedStatus = { ...status, [led]: newValue };
 
       // Güncellenmiş durumu API'ye gönder
-      await axios.patch('https://api-control-on-off.vercel.app/api/status', currentStatus);
+      await axios.patch('https://api-control-on-off.vercel.app/api/status', {
+        status: updatedStatus
+      });
 
       // State'i güncelle
-      setStatus(currentStatus);
-      console.log(`Status of ${led} updated:`, currentStatus);
+      setStatus(updatedStatus);
+      console.log(`Status of ${led} updated:`, updatedStatus);
     } catch (error) {
       console.error(`There was an error updating the ${led} status!`, error);
     }
   };
+
+  if (status === null) {
+    return <div>Loading...</div>;
+  }
 
   return (
     <div className="App">
