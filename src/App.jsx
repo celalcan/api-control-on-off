@@ -13,7 +13,7 @@ const App = () => {
     // LED durumlarını almak için bir GET isteği
     const fetchData = async () => {
       try {
-        const response = await axios.get('/api/led-status'); // Burada API endpoint'inizi kullanın
+        const response = await axios.get('https://api-control-on-off.vercel.app/api/status'); // Burada API endpoint'inizi kullanın
         setLedStatus(response.data.status);
       } catch (error) {
         console.error('Error fetching LED status:', error);
