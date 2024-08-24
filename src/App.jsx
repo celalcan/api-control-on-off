@@ -8,7 +8,7 @@ const App = () => {
   useEffect(() => {
     const fetchStatus = async () => {
       try {
-        const response = await axios.get('http://localhost:3000/status');
+        const response = await axios.get('https://api-control-on-off.vercel.app/api/status');
         setStatus(response.data);
       } catch (error) {
         console.error('Error fetching status:', error);
@@ -21,7 +21,7 @@ const App = () => {
   const updateStatus = async (led, value) => {
     if (status[led] !== value) {
       try {
-        await axios.patch('http://localhost:3000/status', { [led]: value });
+        await axios.patch('https://api-control-on-off.vercel.app/api/status', { [led]: value });
         setStatus(prevStatus => ({ ...prevStatus, [led]: value }));
         console.log(`${led}: ${value}`);
       } catch (error) {
