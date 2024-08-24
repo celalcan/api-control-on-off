@@ -1,5 +1,5 @@
 import axios from 'axios';
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 
 function App() {
   const [ledStatus, setLedStatus] = useState({
@@ -9,9 +9,15 @@ function App() {
     "led-four": 1
   });
 
+  useEffect(() => {
+    // Komponent ilk yüklendiğinde mevcut LED durumlarını al
+    fetchStatus();
+  }, []);
+
   const fetchStatus = async () => {
     try {
       const response = await axios.get('https://api-control-on-off.vercel.app/api/status');
+      // API'den gelen yanıtın status alanını state'e atayın
       setLedStatus(response.data.status || {
         "led-one": 1,
         "led-two": 1,
@@ -25,19 +31,24 @@ function App() {
 
   const updateStatus = async (led, newValue) => {
     try {
-      // Fetch the current status
-      await fetchStatus();
-      
-      // Update the status for the specific LED
-      const updatedStatus = {
-        ...ledStatus,
-        [led]: newValue
+      // Mevcut durumu alın
+      const currentStatus = await axios.get('https://api-control-on-off.vercel.app/api/status');
+      const updatedStatus = currentStatus.data.status || {
+        "led-one": 1,
+        "led-two": 1,
+        "led-three": 1,
+        "led-four": 1
       };
 
+      // Sadece tıklanan LED'i güncelle
+      updatedStatus[led] = newValue;
+
+      // Güncellenmiş durumu API'ye gönder
       await axios.patch('https://api-control-on-off.vercel.app/api/status', {
         status: updatedStatus
       });
-      
+
+      // State'i güncelle
       setLedStatus(updatedStatus);
       console.log(`Status of ${led} updated:`, updatedStatus);
     } catch (error) {
