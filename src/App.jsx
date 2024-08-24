@@ -17,7 +17,6 @@ function App() {
   const fetchStatus = async () => {
     try {
       const response = await axios.get('https://api-control-on-off.vercel.app/api/status');
-      // API'den gelen yanıtın status alanını state'e atayın
       setLedStatus(response.data.status || {
         "led-one": 1,
         "led-two": 1,
@@ -31,7 +30,7 @@ function App() {
 
   const updateStatus = async (led, newValue) => {
     try {
-      // Mevcut durumu alın
+      // Sadece tıklanan LED'i güncellemek için mevcut durumu al
       const response = await axios.get('https://api-control-on-off.vercel.app/api/status');
       const currentStatus = response.data.status || {
         "led-one": 1,
